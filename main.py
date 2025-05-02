@@ -17,9 +17,9 @@ warnings.filterwarnings('ignore')
 
 
 # === Adjustable parameters ===
-model_type = 'RT-GARCH' 
+model_type = 'CVX-GARCH' 
 asset = 'BTC' 
-dist = 'normal'
+dist = 'ged'
 horizon = 1 
 window = 1000 
 
