@@ -45,7 +45,7 @@ class RTGARCHModel(VolatilityModel):
             omega, alpha, beta, phi, nu = params
             if nu <= 2:
                 return np.inf
-        elif self.dist == 'ged':
+        elif self.dist in ['laplace', 'ged']:
             omega, alpha, beta, phi = params
         else:
             raise ValueError(f'Unsupported distribution: {self.dist}')
@@ -61,8 +61,8 @@ class RTGARCHModel(VolatilityModel):
             const = gamma_fn((nu + 1) / 2) / (gamma_fn(nu / 2) * np.sqrt((nu - 2) * np.pi))
             z2 = self.residuals**2 / var
             ll = np.log(const) - 0.5 * np.log(var) - ((nu + 1) / 2) * np.log(1 + z2 / (nu - 2))
-        elif self.dist == 'ged':
-            beta_ged = 1 # Laplace distribution
+        elif self.dist in ['laplace', 'ged']:
+            beta_ged = 1 if self.dist == 'laplace' else 1.5
             gamma_1 = gamma_fn(1 / beta_ged)
             gamma_3 = gamma_fn(3 / beta_ged)
             alpha_ged = np.sqrt(var * gamma_1 / gamma_3)
@@ -92,7 +92,7 @@ class RTGARCHModel(VolatilityModel):
                 initial_guess = [1e-6, 0.05, 0.9, 0.05, 8]
             bounds = [(1e-12, None), (0, 1), (0, 1), (0, 1), (2.5, 100)] # Confirm bounds
             method = 'Nelder-Mead'
-        elif self.dist == 'ged':
+        elif self.dist in ['laplace', 'ged']:
             if initial_guess is None:
                 initial_guess = [1e-6, 0.05, 0.9, 0.05]
             bounds = [(1e-12, None), (0, 1), (0, 1), (0, 1)] # Confirm bounds
@@ -114,7 +114,7 @@ class RTGARCHModel(VolatilityModel):
             omega, alpha, beta, phi = self.params
         elif self.dist == 't':
             omega, alpha, beta, phi, _ = self.params
-        elif self.dist == 'ged':
+        elif self.dist in ['laplace', 'ged']:
             omega, alpha, beta, phi = self.params
 
         self.conditional_variance = rt_garch_recursion(self.residuals, omega, alpha, beta, phi)
@@ -130,7 +130,7 @@ class RTGARCHModel(VolatilityModel):
             omega, alpha, beta, phi = self.params
         elif self.dist == 't':
             omega, alpha, beta, phi, _ = self.params
-        elif self.dist == 'ged':
+        elif self.dist in ['laplace', 'ged']:
             omega, alpha, beta, phi = self.params
 
         last_residual = self.residuals[-1]

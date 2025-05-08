@@ -9,7 +9,7 @@ Subclasses must implement:
 
 class VolatilityModel:
 
-    supported_distributions = ['normal', 't', 'ged']
+    supported_distributions = ['normal', 't', 'laplace', 'ged']
 
     def __init__(self, residuals, dist='normal'):
         if dist not in self.supported_distributions:

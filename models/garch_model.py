@@ -43,7 +43,7 @@ class GARCHModel(VolatilityModel):
             omega, alpha, beta, nu = params
             if nu <= 2:
                 return np.inf
-        elif self.dist == 'ged':
+        elif self.dist in ['laplace', 'ged']:
             omega, alpha, beta = params
         else:
             raise ValueError(f'Unsupported distribution: {self.dist}')
@@ -59,8 +59,8 @@ class GARCHModel(VolatilityModel):
             const = gamma_fn((nu + 1) / 2) / (gamma_fn(nu / 2) * np.sqrt((nu - 2) * np.pi))
             z2 = self.residuals**2 / var
             ll = np.log(const) - 0.5 * np.log(var) - ((nu + 1) / 2) * np.log(1 + z2 / (nu - 2))
-        elif self.dist == 'ged':
-            beta_ged = 1 # Laplace distribution
+        elif self.dist in ['laplace', 'ged']:
+            beta_ged = 1 if self.dist == 'laplace' else 1.5
             gamma_1 = gamma_fn(1 / beta_ged)
             gamma_3 = gamma_fn(3 / beta_ged)
             alpha_ged = np.sqrt(var * gamma_1 / gamma_3)
@@ -80,7 +80,7 @@ class GARCHModel(VolatilityModel):
                 initial_guess = [1e-6, 0.05, 0.9, 8]
             bounds = [(1e-12, None), (0, 1), (0, 1), (2.5, 100)]
             method = 'Nelder-Mead'
-        elif self.dist == 'ged':
+        elif self.dist in ['laplace', 'ged']:
             if initial_guess is None:
                 initial_guess = [1e-6, 0.05, 0.9]
             bounds = [(1e-12, None), (0, 1), (0, 1)]
@@ -102,7 +102,7 @@ class GARCHModel(VolatilityModel):
             omega, alpha, beta = self.params
         elif self.dist == 't':
             omega, alpha, beta, _ = self.params
-        elif self.dist == 'ged':
+        elif self.dist in ['laplace', 'ged']:
             omega, alpha, beta = self.params
 
         self.conditional_variance = garch_recursion(self.residuals, omega, alpha, beta)
@@ -118,7 +118,7 @@ class GARCHModel(VolatilityModel):
             omega, alpha, beta = self.params
         elif self.dist == 't':
             omega, alpha, beta, _ = self.params
-        elif self.dist == 'ged':
+        elif self.dist in ['laplace', 'ged']:
             omega, alpha, beta = self.params
             
         last_residual = self.residuals[-1]
