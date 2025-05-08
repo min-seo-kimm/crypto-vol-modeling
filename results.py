@@ -47,8 +47,8 @@ model_classes = {
 results = []
 
 # Run all combinations
-for model_type in ['GARCH', 'CVX-GARCH', 'RT-GARCH']:
-    for dist in ['normal', 'ged']:
+for model_type in ['GARCH', 'EGARCH', 'GJR-GARCH', 'CVX-GARCH', 'RT-GARCH']:
+    for dist in ['normal', 't', 'ged']:
         print(f'Running {model_type} with {dist} distribution')
         VolatilityModel = model_classes[model_type]
 

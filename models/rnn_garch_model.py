@@ -91,8 +91,8 @@ def negative_llk(residuals, cond_vars, dist='normal'):
     if dist == 'normal':
         log_2pi = torch.log(torch.tensor(2 * torch.pi, device=cond_vars.device))
         ll = -0.5 * (log_2pi + torch.log(cond_vars) + residuals**2 / cond_vars)
-    elif dist == 'ged':
-        beta_ged = 1.0  # Laplace
+    elif dist in ['laplace', 'ged']:
+        beta_ged = 1 if dist == 'laplace' else 1.5
         gamma_1 = gamma_fn(1 / beta_ged)
         gamma_3 = gamma_fn(3 / beta_ged)
         alpha_ged = torch.sqrt(cond_vars * gamma_1 / gamma_3)
@@ -143,7 +143,7 @@ def main():
     batch_size = 32
     lr = 1e-2
     dist = 'ged'
-    train = False
+    train = True
 
     # === Load residuals and realized variances ===
     residuals_df = pd.read_csv('../data/daily_residuals.csv', index_col=0, parse_dates=True)
@@ -212,15 +212,16 @@ def main():
 
     cond_vars_train = cond_vars_train.squeeze(0).cpu().numpy()
 
-    # plt.figure(figsize=(10, 6))
-    # plt.plot(cond_vars_train, label='Fitted', linewidth=1)
-    # plt.plot(realized_vars_train.numpy(), label='Realized', linewidth=1)
-    # plt.title('RNN-GARCH(1,1) In-Sample Analysis')
-    # plt.xlabel('Time')
-    # plt.ylabel('Variance')
-    # plt.legend()
-    # plt.tight_layout()
-    # plt.show()
+    plt.figure(figsize=(10, 6))
+    plt.plot(cond_vars_train, label='Fitted', linewidth=1)
+    plt.plot(realized_vars_train.numpy(), label='Realized', linewidth=1)
+    plt.title(f'RNN-GARCH(1,1) In-Sample Analysis | Distribution = {dist}')
+    plt.xlabel('Time')
+    plt.ylabel('Variance')
+    plt.ylim(-10, 250)
+    plt.legend(loc='upper right')
+    plt.tight_layout()
+    plt.show()
 
     # === Out-of-sample performance ===
     forecasted_vars = np.zeros(len(residuals_test))
@@ -248,7 +249,7 @@ def main():
     plt.figure(figsize=(10, 6))
     plt.plot(forecasted_vars, label='Predicted (1-Day)', linewidth=1)
     plt.plot(realized_vars_test.numpy(), label='Realized', linewidth=1)
-    plt.title(f'RNN-GARCH(1,1) Out-of-Sample Analysis | Distribution: {dist}')
+    plt.title(f'RNN-GARCH(1,1) Out-of-Sample Analysis | Distribution = {dist}')
     plt.xlabel('Time')
     plt.ylabel('Variance')
     plt.ylim(0, 35)

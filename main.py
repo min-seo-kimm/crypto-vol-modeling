@@ -17,7 +17,7 @@ warnings.filterwarnings('ignore')
 
 
 # === Adjustable parameters ===
-model_type = 'CVX-GARCH' 
+model_type = 'RT-GARCH' 
 asset = 'BTC' 
 dist = 'ged'
 horizon = 1 
@@ -92,15 +92,16 @@ print(f'AIC = {model.aic:.2f}')
 
 
 # === Plot in-sample conditional variance ===
-# plt.figure(figsize=(10, 6))
-# plt.plot(model.conditional_variance, label='Fitted', linewidth=1)
-# plt.plot(realized_vars_train, label='Realized', linewidth=1)
-# plt.title(f'{model_type}(1,1) In-Sample Analysis')
-# plt.xlabel('Time')
-# plt.ylabel('Variance')
-# plt.legend()
-# plt.tight_layout()
-# plt.show()
+plt.figure(figsize=(10, 6))
+plt.plot(model.conditional_variance, label='Fitted', linewidth=1)
+plt.plot(realized_vars_train, label='Realized', linewidth=1)
+plt.title(f'{model_type}(1,1) In-Sample Analysis | Distribution = {dist}')
+plt.xlabel('Time')
+plt.ylabel('Variance')
+plt.ylim(-10, 250)
+plt.legend(loc='upper right')
+plt.tight_layout()
+plt.show()
 
 
 # === Forecast future variance ===
