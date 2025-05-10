@@ -143,7 +143,7 @@ def main():
     batch_size = 32
     lr = 1e-2
     dist = 'ged'
-    train = True
+    train = False
 
     # === Load residuals and realized variances ===
     residuals_df = pd.read_csv('../data/daily_residuals.csv', index_col=0, parse_dates=True)
